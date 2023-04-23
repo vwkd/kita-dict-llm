@@ -1,0 +1,8 @@
+{
+  "tasks": {
+    "extract": "deno run --allow-run --allow-read --allow-write src/extract_data.ts"
+  },
+  "imports": {
+    "std/": "https://deno.land/std@0.184.0/"
+  }
+}
