@@ -1,6 +1,6 @@
 import type { Data } from "./types.ts";
 
-const FILEPATH = "../kita-dict-data/extracted_data.json";
+const FILEPATH = "extracted_data.json";
 
 const json = await Deno.readTextFile(FILEPATH);
 const data: Data[] = JSON.parse(json);

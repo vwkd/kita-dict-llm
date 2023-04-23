@@ -1,5 +1,6 @@
 import type { Data } from "./types.ts";
 
+const dictRepo = "../kita-dict-data";
 const dictFilepath = "src/dict.txt";
 const outputFilepath = "extracted_data.json";
 
@@ -69,6 +70,7 @@ async function getCommandOutput(cmd: string, args: string[]) {
 
   const command = new Deno.Command(cmd, {
     args,
+    cwd: dictRepo,
   })
 
   const { code, stdout, stderr } = await command.output();
