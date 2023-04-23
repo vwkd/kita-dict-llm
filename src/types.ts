@@ -3,3 +3,8 @@ export interface Data {
   before: string;
   after: string;
 }
+
+export interface Message {
+  role: string;
+  content: string;
+}
