@@ -18,13 +18,13 @@ Lorem ipsum.
 
 The Git history contains an individual commit for every page which edited the contents. Such a commit always has a specific message that contains the page number like `fix: 21`. There might be other unrelated commits in between that can change the contents of later pages.
 
-I want to get the text of every page before and after it was edited. I want to save it in a JSON file like this
+I want to extract the text of every page before and after it was edited and save it in a big JSON file like this
 
 ```json
 [
   {
     page: "21",
-	before: "Some other text here."
+	before: "Previous text here."
 	after: "Some text here.\nAnother text."
   },
   ...
