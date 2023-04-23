@@ -1,8 +1,8 @@
 import type { Data } from "./types.ts";
 
-const dictRepo = "../kita-dict-data";
-const dictFilepath = "src/dict.txt";
-const outputFilepath = "extracted_data.json";
+const DICT_REPO = "../kita-dict-data";
+const DICT_FILEPATH = "src/dict.txt";
+const OUTPUT_FILEPATH = "extracted_data.json";
 
 /**
  * Extracts content of each page before and after its `fix: 9/999` commit
@@ -19,11 +19,11 @@ const commitLog = await getCommandOutput("git", [
   "--reverse",
 ]);
 
-await Deno.writeTextFile(outputFilepath, "[");
+await Deno.writeTextFile(OUTPUT_FILEPATH, "[");
 
 for (const [index, logLine] of commitLog.split("\n").entries()) {
   if (index > 0) {
-    await Deno.writeTextFile(outputFilepath, ",", { append: true });
+    await Deno.writeTextFile(OUTPUT_FILEPATH, ",", { append: true });
   }
 
   // note: need to strip leading and trailing single quote
@@ -36,12 +36,12 @@ for (const [index, logLine] of commitLog.split("\n").entries()) {
   const beforeDict = await getCommandOutput("git", [
     "cat-file",
     "-p",
-    `${hash}~1:${dictFilepath}`,
+    `${hash}~1:${DICT_FILEPATH}`,
   ]);
   const afterDict = await getCommandOutput("git", [
     "cat-file",
     "-p",
-    `${hash}:${dictFilepath}`,
+    `${hash}:${DICT_FILEPATH}`,
   ]);
 
   const matchBefore = beforeDict.match(re);
@@ -60,17 +60,17 @@ for (const [index, logLine] of commitLog.split("\n").entries()) {
     after: afterText,
   };
 
-  await Deno.writeTextFile(outputFilepath, JSON.stringify(obj), { append: true });
+  await Deno.writeTextFile(OUTPUT_FILEPATH, JSON.stringify(obj), { append: true });
 }
 
-await Deno.writeTextFile(outputFilepath, "]", { append: true });
+await Deno.writeTextFile(OUTPUT_FILEPATH, "]", { append: true });
 
 async function getCommandOutput(cmd: string, args: string[]) {
   // console.debug(`Running command: ${cmd} ${args.join(" ")}`);
 
   const command = new Deno.Command(cmd, {
     args,
-    cwd: dictRepo,
+    cwd: DICT_REPO,
   })
 
   const { code, stdout, stderr } = await command.output();
