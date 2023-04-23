@@ -18,7 +18,7 @@ Lorem ipsum.
 
 The markdown file is in a Git repository on a linear branch called `main`. Each page was edited in one individual commit with a specific message that contains the page number like `fix: 21`. After that commit the page was not edited anymore. There are other unrelated commits in between those commits that changed later pages.
 
-I want to extract the text of every page before and after it was edited in its individual commit, and save it in a JSON file like this
+I want to create a JSON file with one entry for each page which contains the content of that page before and after it was edited in its individual commit. Note, the `before` and `after` properties should not include the whole book content but only the page content. Note, the strings should be stripped of leading and trailing newlines and special character like newlines and quotes properly escaped to be valid JSON. For example, the entry for the first page above could look like this.
 
 ```json
 [
@@ -31,4 +31,4 @@ I want to extract the text of every page before and after it was edited in its i
 ]
 ```
 
-How can I do this in unix?
+How can I do this in an efficient unix script using `git` and `jq`?
