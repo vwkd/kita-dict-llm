@@ -1,6 +1,12 @@
 const dictFilepath = "src/dict.txt";
 const outputFilepath = "extracted_data.json";
 
+/**
+ * Extracts content of each page before and after its `fix: 9/999` commit
+ * writes data into a JSON file
+ * note: assumes page isn't changed anymore after its `fix: 9/999` commit, not quite true for `fix: 9/999 print order` and similar, but can ignore for training
+ */
+
 const commitLog = await getCommandOutput("git", [
   "log",
   "-E",
