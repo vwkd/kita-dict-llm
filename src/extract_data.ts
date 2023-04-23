@@ -1,45 +1,62 @@
 const dictFilepath = "src/dict.txt";
 const outputFilepath = "extracted_data.json";
 
-const commitLog = await getCommandOutput(["git", "log", "-E", `--grep="^fix: ([123]\/\d+)$"`, '--format="%H %s"', "--reverse"]);
+const commitLog = await getCommandOutput("git", [
+  "log",
+  "-E",
+  "--grep",
+  "^fix: [123]/[0-9]+$",
+  "--format='%H %s'",
+  "--reverse",
+]);
 
-const array: {page: string, before: string, after: string}[] = [];
+const array: { page: string; before: string; after: string }[] = [];
 for (const logLine of commitLog.split("\n")) {
-  const [hash, _, pageNumber] = logLine.split(" ");
+  // note: need to strip leading and trailing single quote
+  const [hash, _, pageNumber] = logLine.slice(1, -1).split(" ");
 
-  const beforeText = await getCommandOutput(["git", "cat-file", "-p", `${hash}~1:${dictFilepath}`]);
-  
-  const afterText = await getCommandOutput(["git", "cat-file", "-p", `${hash}:${dictFilepath}`]);
+  console.debug(`Extracting page ${pageNumber} ...`);
 
-  // todo: extract only to page
+  const re = new RegExp(`^(?<=## ${pageNumber}\n\n)[^#]+(?=\n\n##)`, "m");
 
-  array.push({
-    page: pageNumber.trim(),
-    before: beforeText.trim(),
-    after: afterText.trim(),
-  });
-}
-  
-console.log(JSON.stringify(array, null, 2));
-
-async function getCommandOutput(cmd: string[]) {
-  const process = Deno.run({
-    cmd,
-    stdout: "piped",
-    stderr: "piped",
-  });
-
-  const [{ code }, rawOutput, rawError] = await Promise.all([
-    process.status(),
-    process.output(),
-    process.stderrOutput(),
+  const beforeDict = await getCommandOutput("git", [
+    "cat-file",
+    "-p",
+    `${hash}~1:${dictFilepath}`,
   ]);
 
+  const beforeText = beforeDict.match(re)[0];
+
+  const afterDict = await getCommandOutput("git", [
+    "cat-file",
+    "-p",
+    `${hash}:${dictFilepath}`,
+  ]);
+
+  const afterText = afterDict.match(re)[0];
+
+  array.push({
+    page: pageNumber,
+    before: beforeText,
+    after: afterText,
+  });
+}
+
+await Deno.writeTextFile(outputFilepath, JSON.stringify(array, null, 2));
+
+async function getCommandOutput(cmd: string, args: string[]) {
+  // console.debug(`Running command: ${cmd} ${args.join(" ")}`);
+
+  const command = new Deno.Command(cmd, {
+    args,
+  })
+
+  const { code, stdout, stderr } = await command.output();
+
+  const td = new TextDecoder();
   if (code === 0) {
-    const outputString = new TextDecoder().decode(rawOutput);
-    return outputString;
+    return td.decode(stdout);
   } else {
-    const errorString = new TextDecoder().decode(rawError);
-    throw new Error(errorString);
+    throw new Error(td.decode(stderr));
   }
 }
