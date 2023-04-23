@@ -15,3 +15,9 @@ Kita Dict GPT training data for OCR correction
 ```sh
 deno task extract
 ```
+
+- stats
+
+```sh
+deno task stats
+```

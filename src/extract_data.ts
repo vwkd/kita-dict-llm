@@ -1,3 +1,5 @@
+import type { Data } from "./types.ts";
+
 const dictFilepath = "src/dict.txt";
 const outputFilepath = "extracted_data.json";
 
@@ -46,7 +48,7 @@ for (const [index, logLine] of commitLog.split("\n").entries()) {
 
   const afterText = afterDict.match(re)[0];
 
-  const obj = {
+  const obj: Data = {
     page: pageNumber,
     before: beforeText,
     after: afterText,
