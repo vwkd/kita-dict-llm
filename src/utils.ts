@@ -8,8 +8,8 @@ export function countTotalTokens(arr: string[]): number {
 
 /**
  * Count tokens
- * right now just separated by whitespace
+ * approximate as some multiple of words (separated by whitespace)
  */
 export function countTokens(str: string): number {
-  return str.split(" ").length;
+  return str.split(" ").length * 4;
 }

@@ -21,13 +21,15 @@ const openai = new OpenAIApi(configuration);
 const messages = await createPrompt(SYSTEM_PROMPT, DATA_FILEPATH, DICT_FILEPATH, PAGE_NUMBER);
 
 try {
+  // note: status code 400 if goes over MAX_TOKENS
+  // seems to use `total_tokens` which is `prompt_tokens` plus `completion_tokens`
   const response = await openai.createChatCompletion({
     model: MODEL,
     messages,
     // max_tokens: 500,
   });
 
-  console.log(response.status, response.headers, response);
+  console.log(response.status, response.statusText);
   
   await Deno.writeTextFile("response.json", JSON.stringify(response.data));
 } catch (e) {
@@ -41,8 +43,11 @@ async function createPrompt(system_prompt_content: string, data_filepath: string
   const training_data = await Deno.readTextFile(data_filepath);
   const data: Data[] = JSON.parse(training_data);
 
+  // sorted by smallest to largest
+  const data_sorted = data.sort((a, b) => (countTokens(a.after) + countTokens(a.before)) - (countTokens(b.after) + countTokens(b.before)));
+  
   // todo: increase as far as prompt stays below MAX_TOKENS
-  const data_last = data.slice(-1);
+  const sample_data = data_sorted.slice(0, 1);
 
   const dict = await Deno.readTextFile(dict_filepath);
 
@@ -51,7 +56,7 @@ async function createPrompt(system_prompt_content: string, data_filepath: string
     content: system_prompt_content,
   };
 
-  const sample_messages = data_last.map(({ before, after }) => [
+  const sample_messages = sample_data.map(({ before, after }) => [
     { role: "user", content: before },
     { role: "assistant", content: after },
   ])
@@ -69,9 +74,9 @@ async function createPrompt(system_prompt_content: string, data_filepath: string
   ];
 
   console.debug(
-    `Created prompt with approx. '${
+    `Created prompt with ~${
       countTokens(JSON.stringify(messages))
-    }' tokens.`,
+    } tokens.`,
   );
 
   return messages;
