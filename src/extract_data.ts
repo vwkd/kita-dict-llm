@@ -21,7 +21,8 @@ const commitLog = await getCommandOutput("git", [
 
 await Deno.writeTextFile(OUTPUT_FILEPATH, "[");
 
-for (const [index, logLine] of commitLog.split("\n").entries()) {
+// note: need to trim trailing newline
+for (const [index, logLine] of commitLog.trim().split("\n").entries()) {
   if (index > 0) {
     await Deno.writeTextFile(OUTPUT_FILEPATH, ",", { append: true });
   }
