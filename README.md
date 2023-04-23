@@ -10,6 +10,13 @@ Kita Dict GPT training data for OCR correction
 
 ## Usage
 
+- add env vars, e.g. `.env` file
+
+```
+OPENAI_API_KEY=foobar
+OPENAI_ORGANIZATION=org-foobar
+```
+
 - extract
 
 ```sh
@@ -20,4 +27,10 @@ deno task extract
 
 ```sh
 deno task stats
+```
+
+- api
+
+```sh
+deno task complete_openai
 ```
