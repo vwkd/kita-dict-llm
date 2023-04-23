@@ -49,9 +49,11 @@ for (const [index, logLine] of commitLog.trim().split("\n").entries()) {
   const matchAfter = afterDict.match(re);
 
   if (!matchBefore || !matchAfter) {
-    throw new Error(`Page number '${pageNumber}' doesn't match any header. Is the commit message wrong?`);
+    throw new Error(
+      `Page number '${pageNumber}' doesn't match any header. Is the commit message wrong?`,
+    );
   }
-  
+
   const beforeText = matchBefore[0];
   const afterText = matchAfter[0];
 
@@ -61,7 +63,9 @@ for (const [index, logLine] of commitLog.trim().split("\n").entries()) {
     after: afterText,
   };
 
-  await Deno.writeTextFile(OUTPUT_FILEPATH, JSON.stringify(obj), { append: true });
+  await Deno.writeTextFile(OUTPUT_FILEPATH, JSON.stringify(obj), {
+    append: true,
+  });
 }
 
 await Deno.writeTextFile(OUTPUT_FILEPATH, "]", { append: true });
@@ -72,7 +76,7 @@ async function getCommandOutput(cmd: string, args: string[]) {
   const command = new Deno.Command(cmd, {
     args,
     cwd: DICT_REPO,
-  })
+  });
 
   const { code, stdout, stderr } = await command.output();
 

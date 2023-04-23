@@ -18,7 +18,12 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-const messages = await createPrompt(SYSTEM_PROMPT, DATA_FILEPATH, DICT_FILEPATH, PAGE_NUMBER);
+const messages = await createPrompt(
+  SYSTEM_PROMPT,
+  DATA_FILEPATH,
+  DICT_FILEPATH,
+  PAGE_NUMBER,
+);
 
 try {
   // note: status code 400 if goes over MAX_TOKENS
@@ -30,7 +35,7 @@ try {
   });
 
   console.log(response.status, response.statusText);
-  
+
   await Deno.writeTextFile("response.json", JSON.stringify(response.data));
 } catch (e) {
   console.error(e);
@@ -39,13 +44,21 @@ try {
 /**
  * Creates prompt for Chat Completion API
  */
-async function createPrompt(system_prompt_content: string, data_filepath: string, dict_filepath: string, page_number: string) {
+async function createPrompt(
+  system_prompt_content: string,
+  data_filepath: string,
+  dict_filepath: string,
+  page_number: string,
+) {
   const training_data = await Deno.readTextFile(data_filepath);
   const data: Data[] = JSON.parse(training_data);
 
   // sorted by smallest to largest
-  const data_sorted = data.sort((a, b) => (countTokens(a.after) + countTokens(a.before)) - (countTokens(b.after) + countTokens(b.before)));
-  
+  const data_sorted = data.sort((a, b) =>
+    (countTokens(a.after) + countTokens(a.before)) -
+    (countTokens(b.after) + countTokens(b.before))
+  );
+
   // todo: increase as far as prompt stays below MAX_TOKENS
   const sample_data = data_sorted.slice(0, 1);
 
@@ -74,11 +87,15 @@ async function createPrompt(system_prompt_content: string, data_filepath: string
   ];
 
   const system_prompt_tokens = countTokens(system_prompt.content);
-  const sample_messages_tokens = sample_messages.reduce((total, current) => total + countTokens(current.content), 0);
+  const sample_messages_tokens = sample_messages.reduce(
+    (total, current) => total + countTokens(current.content),
+    0,
+  );
   const user_prompt_tokens = countTokens(user_prompt.content);
   // note: approximate `completion_token` as `user_prompt_tokens`
-  const total_tokens = system_prompt_tokens + sample_messages_tokens + 2 * user_prompt_tokens;
-  
+  const total_tokens = system_prompt_tokens + sample_messages_tokens +
+    2 * user_prompt_tokens;
+
   console.debug(`Created prompt with ~${total_tokens} tokens.`);
 
   return messages;
