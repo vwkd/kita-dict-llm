@@ -16,8 +16,13 @@ const commitLog = await getCommandOutput("git", [
   "--reverse",
 ]);
 
-const array: { page: string; before: string; after: string }[] = [];
-for (const logLine of commitLog.split("\n")) {
+await Deno.writeTextFile(outputFilepath, "[");
+
+for (const [index, logLine] of commitLog.split("\n").entries()) {
+  if (index > 0) {
+    await Deno.writeTextFile(outputFilepath, ",", { append: true });
+  }
+
   // note: need to strip leading and trailing single quote
   const [hash, _, pageNumber] = logLine.slice(1, -1).split(" ");
 
@@ -41,14 +46,16 @@ for (const logLine of commitLog.split("\n")) {
 
   const afterText = afterDict.match(re)[0];
 
-  array.push({
+  const obj = {
     page: pageNumber,
     before: beforeText,
     after: afterText,
-  });
+  };
+
+  await Deno.writeTextFile(outputFilepath, JSON.stringify(obj), { append: true });
 }
 
-await Deno.writeTextFile(outputFilepath, JSON.stringify(array, null, 2));
+await Deno.writeTextFile(outputFilepath, "]", { append: true });
 
 async function getCommandOutput(cmd: string, args: string[]) {
   // console.debug(`Running command: ${cmd} ${args.join(" ")}`);
