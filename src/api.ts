@@ -73,11 +73,13 @@ async function createPrompt(system_prompt_content: string, data_filepath: string
     user_prompt,
   ];
 
-  console.debug(
-    `Created prompt with ~${
-      countTokens(JSON.stringify(messages))
-    } tokens.`,
-  );
+  const system_prompt_tokens = countTokens(system_prompt.content);
+  const sample_messages_tokens = sample_messages.reduce((total, current) => total + countTokens(current.content), 0);
+  const user_prompt_tokens = countTokens(user_prompt.content);
+  // note: approximate `completion_token` as `user_prompt_tokens`
+  const total_tokens = system_prompt_tokens + sample_messages_tokens + 2 * user_prompt_tokens;
+  
+  console.debug(`Created prompt with ~${total_tokens} tokens.`);
 
   return messages;
 }
