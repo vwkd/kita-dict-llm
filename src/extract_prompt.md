@@ -1,4 +1,4 @@
-I have a markdown file of a book in a Git repository. Each page is separated by a header from the previous which contains the page number. Some pages missing. Here's an example
+I have a markdown file of a book. It has a header for each page containing the page number. Some pages missing. Here's a short example
 
 ```md
 ## 21
@@ -16,9 +16,9 @@ More more.
 Lorem ipsum.
 ```
 
-The Git history contains an individual commit for every page which edited the contents. Such a commit always has a specific message that contains the page number like `fix: 21`. There might be other unrelated commits in between that can change the contents of later pages.
+The markdown file is in a Git repository on a linear branch called `main`. Each page was edited in an individual commit with a specific message that contains the page number like `fix: 21`. After that commit the page was not edited anymore. There are other unrelated commits in between that changed later pages.
 
-I want to extract the text of every page before and after it was edited and save it in a big JSON file like this
+I want to extract the text of every page before and after it was edited in its individual commit, and save it in a JSON file like this
 
 ```json
 [
