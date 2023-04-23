@@ -1,11 +1,12 @@
 import "std/dotenv/load.ts";
 import { Configuration, OpenAIApi } from "npm:openai";
-import { Data } from "./types.ts";
+import { Data, Message } from "./types.ts";
 import { countTokens } from "./utils.ts";
 
 const DICT_FILEPATH = "../kita-dict-data/src/dict.txt";
 const DATA_FILEPATH = "extracted_data.json";
-// const MAX_TOKENS = 4096;
+const OUTPUT_FILEPATH = "response.json";
+const MAX_TOKENS = 4096;
 const MODEL = "gpt-3.5-turbo";
 const PAGE_NUMBER = "1/661";
 const SYSTEM_PROMPT = "Du bist ein akkurater und genauer Korrektor eines Georgisch-Deutsch-Lexikons. Das Lexikon besteht aus mehreren Seiten, deren Einträge alphabetisch sortiert sind. Ein Eintrag ist in je einer Zeile. Einträge bei Verben sind mit zwei Leerzeichen eingerückt. Die erste Zeile einer Seite beginnt mit dem Symbol ♦︎, wenn sie die letzte Zeile der vorherigen Seite fortsetzt. Du erhältst je eine Seite mit Fehlern und antwortest mit der korrigierten Seite.";
@@ -23,22 +24,36 @@ const messages = await createPrompt(
   DATA_FILEPATH,
   DICT_FILEPATH,
   PAGE_NUMBER,
+  MAX_TOKENS,
 );
 
-try {
-  // note: status code 400 if goes over MAX_TOKENS
-  // seems to use `total_tokens` which is `prompt_tokens` plus `completion_tokens`
-  const response = await openai.createChatCompletion({
-    model: MODEL,
-    messages,
-    // max_tokens: 500,
-  });
+const data = await makeRequest(messages, MODEL);
+await Deno.writeTextFile(OUTPUT_FILEPATH, JSON.stringify(data));
 
-  console.log(response.status, response.statusText);
+/**
+ * Makes request to Chat Completion API
+ * note: status code 400 if goes over MAX_TOKENS
+ * MAX_TOKENS seems to count `total_tokens` which is `prompt_tokens` plus `completion_tokens`
+ */
+async function makeRequest(
+  messages: Message[],
+  model: string,
+) {
+  try {
+    const response = await openai.createChatCompletion({
+      model,
+      messages,
+      // max_tokens: 500,
+    });
 
-  await Deno.writeTextFile("response.json", JSON.stringify(response.data));
-} catch (e) {
-  console.error(e);
+    if (response.status != 200) {
+      console.error(`Got status ${response.status} - ${response.statusText}`);
+    }
+
+    return response.data;
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 /**
@@ -49,7 +64,8 @@ async function createPrompt(
   data_filepath: string,
   dict_filepath: string,
   page_number: string,
-) {
+  max_tokens: number,
+): Promise<Message[]> {
   const training_data = await Deno.readTextFile(data_filepath);
   const data: Data[] = JSON.parse(training_data);
 
@@ -96,7 +112,7 @@ async function createPrompt(
   const total_tokens = system_prompt_tokens + sample_messages_tokens +
     2 * user_prompt_tokens;
 
-  console.debug(`Created prompt with ~${total_tokens} tokens.`);
+  console.debug(`Created prompt with ~${total_tokens}/${max_tokens} tokens.`);
 
   return messages;
 }
