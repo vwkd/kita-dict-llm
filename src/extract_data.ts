@@ -37,16 +37,21 @@ for (const [index, logLine] of commitLog.split("\n").entries()) {
     "-p",
     `${hash}~1:${dictFilepath}`,
   ]);
-
-  const beforeText = beforeDict.match(re)[0];
-
   const afterDict = await getCommandOutput("git", [
     "cat-file",
     "-p",
     `${hash}:${dictFilepath}`,
   ]);
 
-  const afterText = afterDict.match(re)[0];
+  const matchBefore = beforeDict.match(re);
+  const matchAfter = afterDict.match(re);
+
+  if (!matchBefore || !matchAfter) {
+    throw new Error(`Page number '${pageNumber}' doesn't match any header. Is the commit message wrong?`);
+  }
+  
+  const beforeText = matchBefore[0];
+  const afterText = matchAfter[0];
 
   const obj: Data = {
     page: pageNumber,
