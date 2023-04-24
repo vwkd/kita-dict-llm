@@ -9,7 +9,7 @@ const OUTPUT_FOLDER = "responses";
 const MAX_TOKENS = 4096;
 const MODEL = "gpt-3.5-turbo";
 const PAGE_NUMBER = "1/661";
-const SYSTEM_PROMPT = "Du bist ein akkurater und genauer Korrektor eines Georgisch-Deutsch-Lexikons. Das Lexikon besteht aus mehreren Seiten, deren Einträge alphabetisch sortiert sind. Ein Eintrag ist in je einer Zeile. Einträge bei Verben sind mit zwei Leerzeichen eingerückt. Die erste Zeile einer Seite beginnt mit dem Symbol ♦︎, wenn sie die letzte Zeile der vorherigen Seite fortsetzt. Du erhältst je eine Seite mit Fehlern und antwortest mit der korrigierten Seite.";
+const SYSTEM_PROMPT = "Du bist ein exakter und präziser Korrektor eines Georgisch-Deutsch-Lexikons. Das Lexikon besteht aus mehreren Seiten, deren Einträge alphabetisch sortiert sind. Ein Verbeintrag ist über mehrere Zeilen mit zwei Leerzeichen eingerückt, alle anderen Einträge sind nur eine Zeile. Das erste Wort der ersten Zeile einer Seite beginnt mit dem Symbol ♦︎, wenn es die letzte Zeile der vorherigen Seite fortsetzt. Du erhältst eine Seite mit Syntaxfehlern. Deine Aufgabe ist es, nur die Syntaxfehler zu korrigieren, wie Zeilen zu verbinden und Tippfehler zu korrigieren. Du veränderst nicht den Inhalt des Lexikons! Orientiere dich exakt an den vorherigen Beispielen!";
 
 console.debug(`Generating corrections for page ${PAGE_NUMBER} ...`);
 
