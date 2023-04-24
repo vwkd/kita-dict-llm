@@ -5,7 +5,7 @@ import { countTokens } from "./utils.ts";
 
 const DICT_FILEPATH = "../kita-dict-data/src/dict.txt";
 const DATA_FILEPATH = "extracted_data.json";
-const OUTPUT_FILEPATH = "response.json";
+const OUTPUT_FOLDER = "responses";
 const MAX_TOKENS = 4096;
 const MODEL = "gpt-3.5-turbo";
 const PAGE_NUMBER = "1/661";
@@ -28,7 +28,7 @@ const messages = await createPrompt(
 );
 
 const data = await makeRequest(messages, MODEL);
-await Deno.writeTextFile(OUTPUT_FILEPATH, JSON.stringify(data));
+await Deno.writeTextFile(`${OUTPUT_FOLDER}/${PAGE_NUMBER.replace("/", "-")}.json`, JSON.stringify(data));
 
 /**
  * Makes request to Chat Completion API
