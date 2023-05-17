@@ -15,6 +15,7 @@ Kita Dict GPT training data for OCR correction
 ```
 OPENAI_API_KEY=foobar
 OPENAI_ORGANIZATION=org-foobar
+PALM_API_KEY=foobar
 ```
 
 - extract
@@ -33,4 +34,5 @@ deno task stats
 
 ```sh
 deno task complete_openai
+deno task complete_palm
 ```
