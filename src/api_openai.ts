@@ -3,13 +3,14 @@ import { Configuration, OpenAIApi } from "npm:openai";
 import { Data, MessageOpenAI } from "./types.ts";
 import { countTokens, getPage } from "./utils.ts";
 
+const MAX_TOKENS = 4096;
+const MODEL_NAME = "gpt-3.5-turbo";
+const SYSTEM_PROMPT = "Du bist ein exakter und präziser Korrektor eines Georgisch-Deutsch-Lexikons. Das Lexikon besteht aus mehreren Seiten, deren Einträge alphabetisch sortiert sind. Ein Verbeintrag ist über mehrere Zeilen mit zwei Leerzeichen eingerückt, alle anderen Einträge sind nur eine Zeile. Das erste Wort der ersten Zeile einer Seite beginnt mit dem Symbol ♦︎, wenn es die letzte Zeile der vorherigen Seite fortsetzt. Du erhältst eine Seite mit Syntaxfehlern. Deine Aufgabe ist es, nur die Syntaxfehler zu korrigieren, wie Zeilen zu verbinden und Tippfehler zu korrigieren. Du veränderst nicht den Inhalt des Lexikons! Orientiere dich exakt an den vorherigen Beispielen!";
+
 const DICT_FILEPATH = "../kita-dict-data/src/dict.txt";
 const DATA_FILEPATH = "extracted_data.json";
 const OUTPUT_FOLDER = "responses";
-const MAX_TOKENS = 4096;
-const MODEL = "gpt-3.5-turbo";
 const PAGE_NUMBER = "1/661";
-const SYSTEM_PROMPT = "Du bist ein exakter und präziser Korrektor eines Georgisch-Deutsch-Lexikons. Das Lexikon besteht aus mehreren Seiten, deren Einträge alphabetisch sortiert sind. Ein Verbeintrag ist über mehrere Zeilen mit zwei Leerzeichen eingerückt, alle anderen Einträge sind nur eine Zeile. Das erste Wort der ersten Zeile einer Seite beginnt mit dem Symbol ♦︎, wenn es die letzte Zeile der vorherigen Seite fortsetzt. Du erhältst eine Seite mit Syntaxfehlern. Deine Aufgabe ist es, nur die Syntaxfehler zu korrigieren, wie Zeilen zu verbinden und Tippfehler zu korrigieren. Du veränderst nicht den Inhalt des Lexikons! Orientiere dich exakt an den vorherigen Beispielen!";
 
 // todo:
 // loop over all pages since PAGE_NUMBER
@@ -34,8 +35,8 @@ const messages = await createPrompt(
   MAX_TOKENS,
 );
 
-const data = await makeRequest(messages, MODEL);
-await Deno.writeTextFile(`${OUTPUT_FOLDER}/${PAGE_NUMBER.replace("/", "-")}.json`, JSON.stringify(data));
+const data = await makeRequest(messages, MODEL_NAME);
+await Deno.writeTextFile(`${OUTPUT_FOLDER}/${PAGE_NUMBER.replace("/", "-")}_openai.json`, JSON.stringify(data));
 
 /**
  * Makes request to Chat Completion API
