@@ -1,7 +1,7 @@
 import "std/dotenv/load.ts";
 import { Configuration, OpenAIApi } from "npm:openai";
 import { Data, Message } from "./types.ts";
-import { countTokens } from "./utils.ts";
+import { countTokens, getPage } from "./utils.ts";
 
 const DICT_FILEPATH = "../kita-dict-data/src/dict.txt";
 const DATA_FILEPATH = "extracted_data.json";
@@ -122,19 +122,4 @@ async function createPrompt(
   console.debug(`Created prompt with ~${total_tokens}/${max_tokens} tokens.`);
 
   return messages;
-}
-
-/**
- * Extract contents of given page from dict
- */
-function getPage(dict: string, pageNumber: string) {
-  const re = new RegExp(`^(?<=## ${pageNumber}\n\n)[^#]+(?=\n\n##)`, "m");
-
-  const match = dict.match(re);
-
-  if (!match) {
-    throw new Error(`Page number '${pageNumber}' doesn't match any header.`);
-  }
-
-  return match[0];
 }

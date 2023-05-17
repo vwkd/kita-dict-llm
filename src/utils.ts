@@ -13,3 +13,18 @@ export function countTotalTokens(arr: string[]): number {
 export function countTokens(str: string): number {
   return str.split(" ").length * 4;
 }
+
+/**
+ * Extract contents of given page from dict
+ */
+export function getPage(dict: string, pageNumber: string) {
+  const re = new RegExp(`^(?<=## ${pageNumber}\n\n)[^#]+(?=\n\n##)`, "m");
+
+  const match = dict.match(re);
+
+  if (!match) {
+    throw new Error(`Page number '${pageNumber}' doesn't match any header.`);
+  }
+
+  return match[0];
+}
