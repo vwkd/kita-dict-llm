@@ -1,6 +1,6 @@
 import "std/dotenv/load.ts";
 import { Configuration, OpenAIApi } from "npm:openai";
-import { Data, Message } from "./types.ts";
+import { Data, MessageOpenAI } from "./types.ts";
 import { countTokens, getPage } from "./utils.ts";
 
 const DICT_FILEPATH = "../kita-dict-data/src/dict.txt";
@@ -43,7 +43,7 @@ await Deno.writeTextFile(`${OUTPUT_FOLDER}/${PAGE_NUMBER.replace("/", "-")}.json
  * MAX_TOKENS seems to count `total_tokens` which is `prompt_tokens` plus `completion_tokens`
  */
 async function makeRequest(
-  messages: Message[],
+  messages: MessageOpenAI[],
   model: string,
 ) {
   try {
@@ -72,7 +72,7 @@ async function createPrompt(
   dict_filepath: string,
   page_number: string,
   max_tokens: number,
-): Promise<Message[]> {
+): Promise<MessageOpenAI[]> {
   const training_data = await Deno.readTextFile(data_filepath);
   const data: Data[] = JSON.parse(training_data);
 
@@ -87,18 +87,18 @@ async function createPrompt(
 
   const dict = await Deno.readTextFile(dict_filepath);
 
-  const system_prompt = {
+  const system_prompt: MessageOpenAI = {
     role: "system",
     content: system_prompt_content,
   };
 
-  const sample_messages = sample_data.map(({ before, after }) => [
+  const sample_messages = sample_data.map(({ before, after }): MessageOpenAI[] => [
     { role: "user", content: before },
     { role: "assistant", content: after },
   ])
     .flat();
 
-  const user_prompt = {
+  const user_prompt: MessageOpenAI = {
     role: "user",
     content: getPage(dict, page_number),
   };

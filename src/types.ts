@@ -4,7 +4,7 @@ export interface Data {
   after: string;
 }
 
-export interface Message {
-  role: string;
+export interface MessageOpenAI {
+  role: "system" | "user" | "assistant";
   content: string;
 }
