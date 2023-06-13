@@ -23,7 +23,7 @@ export function getPage(dict: string, pageNumber: string) {
   const match = dict.match(re);
 
   if (!match) {
-    throw new Error(`Page number '${pageNumber}' doesn't match any header.`);
+    throw new Error(`Can't find matching header for page number '${pageNumber}' in dict.`);
   }
 
   return match[0];
