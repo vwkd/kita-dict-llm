@@ -3,14 +3,15 @@ import { Configuration, OpenAIApi } from "npm:openai";
 import { Data, MessageOpenAI } from "./types.ts";
 import { countTokens, getPage } from "./utils.ts";
 
-const MAX_TOKENS = 4096;
-const MODEL_NAME = "gpt-3.5-turbo";
-const SYSTEM_PROMPT = "Du bist ein exakter und präziser Korrektor eines Georgisch-Deutsch-Lexikons. Das Lexikon besteht aus mehreren Seiten, deren Einträge alphabetisch sortiert sind. Ein Verbeintrag ist über mehrere Zeilen mit zwei Leerzeichen eingerückt, alle anderen Einträge sind nur eine Zeile. Das erste Wort der ersten Zeile einer Seite beginnt mit dem Symbol ♦︎, wenn es die letzte Zeile der vorherigen Seite fortsetzt. Du erhältst eine Seite mit Syntaxfehlern. Deine Aufgabe ist es, nur die Syntaxfehler zu korrigieren, wie Zeilen zu verbinden und Tippfehler zu korrigieren. Du veränderst nicht den Inhalt des Lexikons! Orientiere dich exakt an den vorherigen Beispielen!";
+const MAX_TOKENS = 16384;
+const MODEL_NAME = "gpt-3.5-turbo-16k";
+const SYSTEM_PROMPT = "Correct the OCR scan errors on a page of a Georgian-German dictionary. The entries are sorted alphabetically. Each line is one entry, except verb entries span multiple lines where each is indented by two spaces. The first line of a page begins with the symbol `♦︎` if it continues the last line of the previous page.";
 
 const DICT_FILEPATH = "../kita-dict-data/src/dict.txt";
 const DATA_FILEPATH = "extracted_data.json";
 const OUTPUT_FOLDER = "responses";
-const PAGE_NUMBER = "1/661";
+// todo: update to last page + 1
+const PAGE_NUMBER = "1/751";
 
 // todo:
 // loop over all pages since PAGE_NUMBER
@@ -77,14 +78,8 @@ async function createPrompt(
   const training_data = await Deno.readTextFile(data_filepath);
   const data: Data[] = JSON.parse(training_data);
 
-  // sorted by smallest to largest
-  const data_sorted = data.sort((a, b) =>
-    (countTokens(a.after) + countTokens(a.before)) -
-    (countTokens(b.after) + countTokens(b.before))
-  );
-
   // todo: increase as far as prompt stays below MAX_TOKENS
-  const sample_data = data_sorted.slice(0, 1);
+  const sample_data = data.slice(-3);
 
   const dict = await Deno.readTextFile(dict_filepath);
 
