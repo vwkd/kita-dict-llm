@@ -49,9 +49,10 @@ for (const [index, logLine] of commitLog.trim().split("\n").entries()) {
   const matchAfter = afterDict.match(re);
 
   if (!matchBefore || !matchAfter) {
-    throw new Error(
-      `Page number '${pageNumber}' doesn't match any header. Is the commit message wrong?`,
+    console.warn(
+      `Skipping page number '${pageNumber}' because can't find matching header in dict. Is the page number in the commit message correct?`,
     );
+    continue;
   }
 
   const beforeText = matchBefore[0];
