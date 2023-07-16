@@ -2,8 +2,8 @@
   "tasks": {
     "extract": "deno run --allow-run --allow-read --allow-write src/extract_data.ts",
     "stats": "deno run --allow-read src/stats.ts",
-    "api_openai": "deno run --allow-env --allow-net --allow-read --allow-write src/api_openai.ts",
-    "api_palm": "deno run --allow-env --allow-net --allow-read --allow-write src/api_palm.ts"
+    "api_openai": "op run --env-file='./.env' -- deno run --allow-env --allow-net --allow-read --allow-write src/api_openai.ts",
+    "api_palm": "op run --env-file='./.env' -- deno run --allow-env --allow-net --allow-read --allow-write src/api_palm.ts"
   },
   "imports": {
     "std/": "https://deno.land/std@0.184.0/"

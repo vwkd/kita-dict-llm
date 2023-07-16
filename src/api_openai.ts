@@ -1,4 +1,3 @@
-import "std/dotenv/load.ts";
 import { Configuration, OpenAIApi } from "npm:openai";
 import { Data, MessageOpenAI } from "./types.ts";
 import { countTokens, getPage } from "./utils.ts";
