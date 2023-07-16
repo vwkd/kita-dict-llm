@@ -1,4 +1,3 @@
-import "std/dotenv/load.ts";
 import { TextServiceClient } from "npm:@google-ai/generativelanguage";
 import { GoogleAuth } from "npm:google-auth-library";
 import { Data } from "./types.ts";
