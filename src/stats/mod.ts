@@ -1,19 +1,27 @@
-import type { Data } from "./types.ts";
+import { countTokens } from "../complete/openai/utils.ts";
+import type { Data } from "../extract/types.ts";
 import { countTotalTokens } from "./utils.ts";
 
-const FILEPATH = "extracted_data.json";
+const DATA_FILEPATH = Deno.env.get("DATA_FILEPATH")!;
 
-const json = await Deno.readTextFile(FILEPATH);
+const json = await Deno.readTextFile(DATA_FILEPATH);
 const data: Data[] = JSON.parse(json);
 
-const totalTokensBefore = countTotalTokens(data.map((e) => e.before));
-const totalTokensAfter = countTotalTokens(data.map((e) => e.after));
+const totalTokensBefore = countTotalTokens(
+  data.map((e) => e.before),
+  countTokens,
+);
 
 console.log(`Total tokens [only before]: ${totalTokensBefore}`);
 console.log(
   `Average tokens [only before]: ${
     Math.round(totalTokensBefore / data.length)
   }`,
+);
+
+const totalTokensAfter = countTotalTokens(
+  data.map((e) => e.after),
+  countTokens,
 );
 
 console.log(`Total tokens [only after]: ${totalTokensAfter}`);

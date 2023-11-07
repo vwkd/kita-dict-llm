@@ -1,8 +1,9 @@
 import type { Data } from "./types.ts";
+import { getCommandOutput } from "./utils.ts";
 
-const DICT_REPO = "../kita-dict-data";
-const DICT_FILEPATH = "src/dict.txt";
-const OUTPUT_FILEPATH = "extracted_data.json";
+const DICT_REPO = Deno.env.get("DICT_REPO")!;
+const DICT_FILE = Deno.env.get("DICT_FILE")!;
+const DATA_FILEPATH = Deno.env.get("DATA_FILEPATH")!;
 
 /**
  * Extracts content of each page before and after its `fix: 9/999` commit
@@ -17,14 +18,14 @@ const commitLog = await getCommandOutput("git", [
   "^fix: [123]/[0-9]+$",
   "--format='%H %s'",
   "--reverse",
-]);
+], DICT_REPO);
 
-await Deno.writeTextFile(OUTPUT_FILEPATH, "[");
+await Deno.writeTextFile(DATA_FILEPATH, "[");
 
 // note: need to trim trailing newline
 for (const [index, logLine] of commitLog.trim().split("\n").entries()) {
   if (index > 0) {
-    await Deno.writeTextFile(OUTPUT_FILEPATH, ",", { append: true });
+    await Deno.writeTextFile(DATA_FILEPATH, ",", { append: true });
   }
 
   // note: need to strip leading and trailing single quote
@@ -37,13 +38,13 @@ for (const [index, logLine] of commitLog.trim().split("\n").entries()) {
   const beforeDict = await getCommandOutput("git", [
     "cat-file",
     "-p",
-    `${hash}~1:${DICT_FILEPATH}`,
-  ]);
+    `${hash}~1:${DICT_FILE}`,
+  ], DICT_REPO);
   const afterDict = await getCommandOutput("git", [
     "cat-file",
     "-p",
-    `${hash}:${DICT_FILEPATH}`,
-  ]);
+    `${hash}:${DICT_FILE}`,
+  ], DICT_REPO);
 
   const matchBefore = beforeDict.match(re);
   const matchAfter = afterDict.match(re);
@@ -64,27 +65,9 @@ for (const [index, logLine] of commitLog.trim().split("\n").entries()) {
     after: afterText,
   };
 
-  await Deno.writeTextFile(OUTPUT_FILEPATH, JSON.stringify(obj), {
+  await Deno.writeTextFile(DATA_FILEPATH, JSON.stringify(obj), {
     append: true,
   });
 }
 
-await Deno.writeTextFile(OUTPUT_FILEPATH, "]", { append: true });
-
-async function getCommandOutput(cmd: string, args: string[]) {
-  // console.debug(`Running command: ${cmd} ${args.join(" ")}`);
-
-  const command = new Deno.Command(cmd, {
-    args,
-    cwd: DICT_REPO,
-  });
-
-  const { code, stdout, stderr } = await command.output();
-
-  const td = new TextDecoder();
-  if (code === 0) {
-    return td.decode(stdout);
-  } else {
-    throw new Error(td.decode(stderr));
-  }
-}
+await Deno.writeTextFile(DATA_FILEPATH, "]", { append: true });
