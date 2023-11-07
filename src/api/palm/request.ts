@@ -27,5 +27,6 @@ export async function makeRequest(
     return response;
   } catch (e) {
     console.error(e);
+    throw e;
   }
 }
