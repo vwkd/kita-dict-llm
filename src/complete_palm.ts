@@ -3,20 +3,19 @@ import { GoogleAuth } from "npm:google-auth-library";
 import { Data } from "./types.ts";
 import { countTokens, getPage } from "./utils.ts";
 
-const MODEL_NAME = "models/text-bison-001";
-const MAX_TOKENS = 8196;
-const SYSTEM_PROMPT = "Correct the OCR scan errors on a page of a Georgian-German dictionary. The entries are sorted alphabetically. Each line is one entry, except verb entries span multiple lines where each is indented by two spaces. The first line of a page begins with the symbol `♦︎` if it continues the last line of the previous page."
-// "You are provided a page with syntax errors. Your task is to correct only the syntax errors, like joining lines and correcting typos. You do not change the content of the dictionary! Follow the previous examples exactly!"
-
-const DICT_FILEPATH = "../kita-dict-data/src/dict.txt";
-const DATA_FILEPATH = "extracted_data.json";
-const OUTPUT_FOLDER = "responses";
-const PAGE_NUMBER = "1/661";
+const PAGE_NUMBER = Deno.env.get("PAGE_NUMBER")!;
+const DICT_FILEPATH = Deno.env.get("DICT_FILEPATH")!;
+const DATA_FILEPATH = Deno.env.get("DATA_FILEPATH")!;
+const OUTPUT_FOLDER = Deno.env.get("OUTPUT_FOLDER")!;
+const SYSTEM_PROMPT = Deno.env.get("SYSTEM_PROMPT")!;
+const PALM_API_KEY = Deno.env.get("PALM_API_KEY")!;
+const MODEL_NAME = Deno.env.get("PALM_MODEL_NAME")!;
+const MAX_TOKENS = Deno.env.get("PALM_MAX_TOKENS")!;
 
 console.debug(`Generating corrections for page ${PAGE_NUMBER} ...`);
 
 const client = new TextServiceClient({
-  authClient: new GoogleAuth().fromAPIKey(Deno.env.get("PALM_API_KEY")),
+  authClient: new GoogleAuth().fromAPIKey(PALM_API_KEY),
 });
 
 const message = await createPrompt(
