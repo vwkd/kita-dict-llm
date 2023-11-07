@@ -22,7 +22,8 @@ export async function createPrompt(
   const data: Data[] = JSON.parse(training_data);
 
   // todo: increase as far as prompt stays below MAX_TOKENS
-  const sample_data = data.slice(-3);
+  const num = 3;
+  const sample_data = data.slice(-num);
 
   const dict = await Deno.readTextFile(DICT_FILEPATH);
 
@@ -60,7 +61,11 @@ export async function createPrompt(
   const total_tokens = system_prompt_tokens + sample_messages_tokens +
     2 * user_prompt_tokens;
 
-  console.debug(`Created prompt with ~${total_tokens}/${MAX_TOKENS} tokens.`);
+  console.debug(
+    `Created prompt of ${num} examples with ~${
+      Math.trunc(total_tokens / MAX_TOKENS * 100)
+    }% (~${total_tokens}/${MAX_TOKENS}) tokens.`,
+  );
 
   return messages;
 }

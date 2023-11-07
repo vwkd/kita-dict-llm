@@ -26,5 +26,6 @@ export async function makeRequest(
     return response;
   } catch (e) {
     console.error(`Got status ${e.status} - ${e.error.message}`);
+    throw e;
   }
 }
