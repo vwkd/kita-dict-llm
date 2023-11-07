@@ -1,3 +1,5 @@
+import { encoding_for_model } from "npm:tiktoken@1.0.10";
+
 /**
  * Count total tokens
  */
@@ -8,10 +10,12 @@ export function countTotalTokens(arr: string[]): number {
 
 /**
  * Count tokens
- * approximate as some multiple of words (separated by whitespace)
  */
 export function countTokens(str: string): number {
-  return str.split(" ").length * 6;
+  const model = "gpt-3.5-turbo";
+  const encoding = encoding_for_model(model);
+  const tokens = encoding.encode(str);
+  return tokens.length;
 }
 
 /**
@@ -23,7 +27,9 @@ export function getPage(dict: string, pageNumber: string) {
   const match = dict.match(re);
 
   if (!match) {
-    throw new Error(`Can't find matching header for page number '${pageNumber}' in dict.`);
+    throw new Error(
+      `Can't find matching header for page number '${pageNumber}' in dict.`,
+    );
   }
 
   return match[0];

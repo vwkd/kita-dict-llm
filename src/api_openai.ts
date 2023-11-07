@@ -1,16 +1,15 @@
-import { Configuration, OpenAIApi } from "npm:openai";
+import OpenAI from "npm:openai@4.16.1";
 import { Data, MessageOpenAI } from "./types.ts";
 import { countTokens, getPage } from "./utils.ts";
 
-const MAX_TOKENS = 16384;
-const MODEL_NAME = "gpt-3.5-turbo-16k";
-const SYSTEM_PROMPT = "Correct the OCR scan errors on a page of a Georgian-German dictionary. The entries are sorted alphabetically. Each line is one entry, except verb entries span multiple lines where each is indented by two spaces. The first line of a page begins with the symbol `♦︎` if it continues the last line of the previous page.";
-
-const DICT_FILEPATH = "../kita-dict-data/src/dict.txt";
-const DATA_FILEPATH = "extracted_data.json";
-const OUTPUT_FOLDER = "responses";
-// todo: update to last page + 1
-const PAGE_NUMBER = "1/751";
+const PAGE_NUMBER = Deno.env.get("PAGE_NUMBER")!;
+const DICT_FILEPATH = Deno.env.get("DICT_FILEPATH")!;
+const DATA_FILEPATH = Deno.env.get("DATA_FILEPATH")!;
+const OUTPUT_FOLDER = Deno.env.get("OUTPUT_FOLDER")!;
+const SYSTEM_PROMPT = Deno.env.get("SYSTEM_PROMPT")!;
+const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
+const MODEL_NAME = Deno.env.get("OPENAI_MODEL_NAME")!;
+const MAX_TOKENS = Number.parseInt(Deno.env.get("OPENAI_MAX_TOKENS")!);
 
 // todo:
 // loop over all pages since PAGE_NUMBER
@@ -21,11 +20,9 @@ const PAGE_NUMBER = "1/751";
 
 console.debug(`Generating corrections for page ${PAGE_NUMBER} ...`);
 
-const configuration = new Configuration({
-  // organization: Deno.env.get("OPENAI_ORGANIZATION"),
-  apiKey: Deno.env.get("OPENAI_API_KEY"),
+const openai = new OpenAI({
+  apiKey: OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 const messages = await createPrompt(
   SYSTEM_PROMPT,
@@ -48,19 +45,15 @@ async function makeRequest(
   model: string,
 ) {
   try {
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
       model,
       messages,
       // max_tokens: 500,
     });
 
-    if (response.status != 200) {
-      console.error(`Got status ${response.status} - ${response.statusText}`);
-    }
-
-    return response.data;
+    return response;
   } catch (e) {
-    console.error(e);
+    console.error(`Got status ${e.status} - ${e.error.message}`);
   }
 }
 
