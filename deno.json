@@ -2,13 +2,10 @@
   "tasks": {
     "extract": "deno run --env=.env --allow-env --allow-run --allow-read --allow-write src/extract/mod.ts",
     "stats": "deno run --allow-read src/stats/mod.ts",
-    "complete_openai": "op run --env-file='./.env' -- deno run --allow-env --allow-net --allow-read --allow-write src/complete/openai/mod.ts",
-    "complete_palm": "op run --env-file='./.env' -- deno run --allow-env --allow-net --allow-read --allow-write src/complete/palm/mod.ts"
+    "complete_openai": "op run --env-file='./.env' -- deno run --allow-env --allow-net --allow-read --allow-write src/complete/openai/mod.ts"
   },
   "imports": {
     "std/": "https://deno.land/std@0.205.0/",
-    "openai": "npm:openai@4.16.1",
-    "generativelanguage": "npm:@google-ai/generativelanguage@1.1.0",
-    "google-auth-library": "npm:google-auth-library@9.2.0"
+    "openai": "npm:openai@4.16.1"
   }
 }

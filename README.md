@@ -36,5 +36,4 @@ deno task stats
 
 ```sh
 deno task complete_openai
-deno task complete_palm
 ```
