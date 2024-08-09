@@ -6,7 +6,7 @@ import {
 import { type Page } from "../../extract/types.ts";
 import { countTokens } from "../../complete/openai/utils.ts";
 
-const DATA_FILEPATH = "out/data.json";
+const DATA_FILEPATH = "out/data.jsonl";
 const SYSTEM_PROMPT_FILE = "prompt/openai.md";
 const OUTPUT_DIRECTORY = "out/openai";
 const TRAINING_DATA_FILENAME = "training.jsonl";
@@ -16,7 +16,10 @@ const TRAINING_MAX_TOKENS = Number.parseInt(
 );
 
 const pagesJson = await Deno.readTextFile(DATA_FILEPATH);
-const pages: Page[] = JSON.parse(pagesJson);
+const pages: Page[] = pagesJson
+  .trim()
+  .split("\n")
+  .map((line) => JSON.parse(line));
 const systemPrompt = (await Deno.readTextFile(SYSTEM_PROMPT_FILE)).trim();
 
 const systemMessage: SystemMessage = {

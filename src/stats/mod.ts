@@ -2,10 +2,13 @@ import { countTokens } from "../complete/openai/utils.ts";
 import type { Page } from "../extract/types.ts";
 import { countTotalTokens } from "./utils.ts";
 
-const DATA_FILEPATH = "out/data.json";
+const DATA_FILEPATH = "out/data.jsonl";
 
-const json = await Deno.readTextFile(DATA_FILEPATH);
-const data: Page[] = JSON.parse(json);
+const lines = await Deno.readTextFile(DATA_FILEPATH);
+const data: Page[] = lines
+  .trim()
+  .split("\n")
+  .map((line) => JSON.parse(line));
 
 const totalTokensBefore = countTotalTokens(
   data.map((e) => e.contentBefore),

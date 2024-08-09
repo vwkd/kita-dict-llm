@@ -13,7 +13,7 @@ const DICT_FILEPATH = join(
   Deno.env.get("DICT_REPO")!,
   Deno.env.get("DICT_FILE")!,
 );
-const DATA_FILEPATH = "out/data.json";
+const DATA_FILEPATH = "out/data.jsonl";
 const SYSTEM_PROMPT_FILE = "prompt/openai.md";
 const MAX_TOKENS = Number.parseInt(Deno.env.get("OPENAI_MAX_TOKENS")!);
 
@@ -26,7 +26,10 @@ export async function createPrompt(
   page_number: string,
 ): Promise<Message[]> {
   const training_data = await Deno.readTextFile(DATA_FILEPATH);
-  const data: Page[] = JSON.parse(training_data);
+  const data: Page[] = training_data
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line));
 
   // todo: increase as far as prompt stays below MAX_TOKENS
   const num = 3;

@@ -1,15 +1,20 @@
+import { join } from "@std/path";
 import type { Page } from "./types.ts";
 import { getCommandOutput } from "./utils.ts";
 
 const DICT_REPO = Deno.env.get("DICT_REPO")!;
 const DICT_FILE = Deno.env.get("DICT_FILE")!;
-const DATA_FILEPATH = "out/data.json";
+const OUTPUT_FOLDER = "out";
+const DATA_FILENAME = "data.jsonl";
+const DATA_FILEPATH = join(OUTPUT_FOLDER, DATA_FILENAME);
 
 /**
  * Extracts content of each page before and after its `fix: 9/999` commit
- * writes data into a JSON file
+ * writes data into a JSONL file
  * note: assumes page isn't changed anymore after its `fix: 9/999` commit, not quite true for `fix: 9/999 print order` and similar, but can ignore for training
  */
+
+await Deno.mkdir(OUTPUT_FOLDER, { recursive: true });
 
 const commitLog = await getCommandOutput("git", [
   "log",
@@ -20,14 +25,8 @@ const commitLog = await getCommandOutput("git", [
   "--reverse",
 ], DICT_REPO);
 
-await Deno.writeTextFile(DATA_FILEPATH, "[");
-
 // note: need to trim trailing newline
-for (const [index, logLine] of commitLog.trim().split("\n").entries()) {
-  if (index > 0) {
-    await Deno.writeTextFile(DATA_FILEPATH, ",", { append: true });
-  }
-
+for (const logLine of commitLog.trim().split("\n")) {
   // note: need to strip leading and trailing single quote
   const [hash, _, pageNumber] = logLine.slice(1, -1).split(" ");
 
@@ -65,9 +64,8 @@ for (const [index, logLine] of commitLog.trim().split("\n").entries()) {
     contentAfter,
   };
 
-  await Deno.writeTextFile(DATA_FILEPATH, JSON.stringify(page), {
+  const line = JSON.stringify(page) + "\n";
+  await Deno.writeTextFile(DATA_FILEPATH, line, {
     append: true,
   });
 }
-
-await Deno.writeTextFile(DATA_FILEPATH, "]", { append: true });
