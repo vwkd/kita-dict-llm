@@ -1,4 +1,4 @@
-import { join } from "std/path/join.ts";
+import { join } from "@std/path";
 import type { Data } from "../../extract/types.ts";
 import type { MessageOpenAI } from "./types.ts";
 import { getPage } from "../utils.ts";

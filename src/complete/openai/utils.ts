@@ -1,4 +1,4 @@
-import { encoding_for_model } from "npm:tiktoken@1.0.10";
+import { encoding_for_model } from "tiktoken";
 
 const MODEL_NAME = Deno.env.get("OPENAI_MODEL_NAME")!;
 
