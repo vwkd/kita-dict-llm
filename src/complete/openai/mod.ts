@@ -2,7 +2,7 @@ import { createPrompt } from "./prompt.ts";
 import { makeRequest } from "./request.ts";
 
 const PAGE_NUMBER = Deno.env.get("PAGE_NUMBER")!;
-const OUTPUT_FOLDER = Deno.env.get("OUTPUT_FOLDER")!;
+const OUTPUT_FOLDER = "out/responses/openai";
 
 // todo:
 // loop over all pages since PAGE_NUMBER
@@ -16,7 +16,9 @@ const messages = await createPrompt(PAGE_NUMBER);
 
 const data = await makeRequest(messages);
 
+await Deno.mkdir(OUTPUT_FOLDER, { recursive: true });
+
 await Deno.writeTextFile(
-  `${OUTPUT_FOLDER}/${PAGE_NUMBER.replace("/", "-")}_openai.json`,
+  `${OUTPUT_FOLDER}/${PAGE_NUMBER.replace("/", "-")}.json`,
   JSON.stringify(data),
 );
