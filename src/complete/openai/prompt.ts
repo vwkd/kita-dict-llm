@@ -1,6 +1,11 @@
 import { join } from "@std/path";
 import type { Data } from "../../extract/types.ts";
-import type { MessageOpenAI } from "./types.ts";
+import type {
+  AssistantMessage,
+  Message,
+  SystemMessage,
+  UserMessage,
+} from "./types.ts";
 import { getPage } from "../utils.ts";
 import { countTokens } from "./utils.ts";
 
@@ -19,7 +24,7 @@ const SYSTEM_PROMPT = (await Deno.readTextFile(SYSTEM_PROMPT_FILE)).trim();
  */
 export async function createPrompt(
   page_number: string,
-): Promise<MessageOpenAI[]> {
+): Promise<Message[]> {
   const training_data = await Deno.readTextFile(DATA_FILEPATH);
   const data: Data[] = JSON.parse(training_data);
 
@@ -29,20 +34,20 @@ export async function createPrompt(
 
   const dict = await Deno.readTextFile(DICT_FILEPATH);
 
-  const system_prompt_message: MessageOpenAI = {
+  const system_prompt_message: SystemMessage = {
     role: "system",
     content: SYSTEM_PROMPT,
   };
 
   const sample_messages = sample_data.map((
     { before, after },
-  ): MessageOpenAI[] => [
+  ): (UserMessage | AssistantMessage)[] => [
     { role: "user", content: before },
     { role: "assistant", content: after },
   ])
     .flat();
 
-  const user_prompt: MessageOpenAI = {
+  const user_prompt: UserMessage = {
     role: "user",
     content: getPage(dict, page_number),
   };
