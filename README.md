@@ -32,6 +32,12 @@ deno task extract
 deno task stats
 ```
 
+- generate training data for finished pages
+
+```sh
+deno task train_openai
+```
+
 - generate error correction of next page
 
 ```sh

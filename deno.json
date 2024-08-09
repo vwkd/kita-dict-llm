@@ -2,7 +2,8 @@
   "tasks": {
     "extract": "deno run --env=.env --allow-env --allow-run --allow-read --allow-write src/extract/mod.ts",
     "stats": "deno run --allow-read src/stats/mod.ts",
-    "complete_openai": "op run --env-file='./.env' -- deno run --allow-env --allow-net --allow-read --allow-write src/complete/openai/mod.ts"
+    "complete_openai": "op run --env-file='./.env' -- deno run --allow-env --allow-net --allow-read --allow-write src/complete/openai/mod.ts",
+    "train_openai": "deno run --env=.env --allow-env --allow-read --allow-write src/train/openai/mod.ts"
   },
   "imports": {
     "@std/path": "jsr:@std/path@^1.0.2",
