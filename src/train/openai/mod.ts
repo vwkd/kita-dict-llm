@@ -1,16 +1,16 @@
-import {
-  type AssistantMessage,
-  type SystemMessage,
-  type UserMessage,
-} from "../../complete/openai/types.ts";
+import { type SystemMessage } from "../../complete/openai/types.ts";
 import { type Page } from "../../extract/types.ts";
 import { countTokens } from "../../complete/openai/utils.ts";
+import { generateChat } from "./utils.ts";
 
 const DATA_FILEPATH = "out/data.jsonl";
 const SYSTEM_PROMPT_FILE = "prompt/openai.md";
 const OUTPUT_DIRECTORY = "out/openai";
 const TRAINING_DATA_FILENAME = "training.jsonl";
 const TRAINING_DATA_FILEPATH = `${OUTPUT_DIRECTORY}/${TRAINING_DATA_FILENAME}`;
+const VALIDATION_DATA_FILENAME = "validation.jsonl";
+const VALIDATION_DATA_FILEPATH =
+  `${OUTPUT_DIRECTORY}/${VALIDATION_DATA_FILENAME}`;
 const TRAINING_MAX_TOKENS = Number.parseInt(
   Deno.env.get("OPENAI_TRAINING_MAX_TOKENS")!,
 );
@@ -37,29 +37,17 @@ while (true) {
   const page = pages.shift();
 
   if (!page) {
-    console.warn(`Data run out at total token count ${tokenCount}`);
+    console.warn(
+      `Data run out at total token count ${tokenCount}. Can't generate validation data.`,
+    );
     break;
   }
 
   const { pageNumber, contentBefore, contentAfter } = page;
 
-  const userMessage: UserMessage = {
-    role: "user",
-    content: contentBefore,
-  };
+  const chat = generateChat(systemMessage, contentBefore, contentAfter);
 
-  const assistantMessage: AssistantMessage = {
-    role: "assistant",
-    content: contentAfter,
-  };
-
-  const messages = [systemMessage, userMessage, assistantMessage];
-
-  const chat = {
-    messages,
-  };
-
-  const tokenCountChat = messages.reduce(
+  const tokenCountChat = chat.messages.reduce(
     (acc, message) => acc + countTokens(message.content),
     0,
   );
@@ -76,4 +64,23 @@ while (true) {
 
   const line = JSON.stringify(chat) + "\n";
   await Deno.writeTextFile(TRAINING_DATA_FILEPATH, line, { append: true });
+}
+
+console.debug(`Generating OpenAI validation data ...`);
+
+while (true) {
+  const page = pages.shift();
+
+  if (!page) {
+    break;
+  }
+
+  const { pageNumber, contentBefore, contentAfter } = page;
+
+  const chat = generateChat(systemMessage, contentBefore, contentAfter);
+
+  console.log(`Adding page ${pageNumber}`);
+
+  const line = JSON.stringify(chat) + "\n";
+  await Deno.writeTextFile(VALIDATION_DATA_FILEPATH, line, { append: true });
 }
