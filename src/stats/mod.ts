@@ -1,14 +1,14 @@
 import { countTokens } from "../complete/openai/utils.ts";
-import type { Data } from "../extract/types.ts";
+import type { Page } from "../extract/types.ts";
 import { countTotalTokens } from "./utils.ts";
 
 const DATA_FILEPATH = "out/data.json";
 
 const json = await Deno.readTextFile(DATA_FILEPATH);
-const data: Data[] = JSON.parse(json);
+const data: Page[] = JSON.parse(json);
 
 const totalTokensBefore = countTotalTokens(
-  data.map((e) => e.before),
+  data.map((e) => e.contentBefore),
   countTokens,
 );
 
@@ -20,7 +20,7 @@ console.log(
 );
 
 const totalTokensAfter = countTotalTokens(
-  data.map((e) => e.after),
+  data.map((e) => e.contentAfter),
   countTokens,
 );
 

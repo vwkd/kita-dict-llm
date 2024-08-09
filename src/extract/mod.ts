@@ -1,4 +1,4 @@
-import type { Data } from "./types.ts";
+import type { Page } from "./types.ts";
 import { getCommandOutput } from "./utils.ts";
 
 const DICT_REPO = Deno.env.get("DICT_REPO")!;
@@ -56,16 +56,16 @@ for (const [index, logLine] of commitLog.trim().split("\n").entries()) {
     continue;
   }
 
-  const beforeText = matchBefore[0];
-  const afterText = matchAfter[0];
+  const contentBefore = matchBefore[0];
+  const contentAfter = matchAfter[0];
 
-  const obj: Data = {
-    page: pageNumber,
-    before: beforeText,
-    after: afterText,
+  const page: Page = {
+    pageNumber,
+    contentBefore,
+    contentAfter,
   };
 
-  await Deno.writeTextFile(DATA_FILEPATH, JSON.stringify(obj), {
+  await Deno.writeTextFile(DATA_FILEPATH, JSON.stringify(page), {
     append: true,
   });
 }

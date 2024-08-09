@@ -1,5 +1,5 @@
-export interface Data {
-  page: string;
-  before: string;
-  after: string;
+export interface Page {
+  pageNumber: string;
+  contentBefore: string;
+  contentAfter: string;
 }

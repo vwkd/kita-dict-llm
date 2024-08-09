@@ -1,5 +1,5 @@
 import { join } from "@std/path";
-import type { Data } from "../../extract/types.ts";
+import type { Page } from "../../extract/types.ts";
 import type {
   AssistantMessage,
   Message,
@@ -26,7 +26,7 @@ export async function createPrompt(
   page_number: string,
 ): Promise<Message[]> {
   const training_data = await Deno.readTextFile(DATA_FILEPATH);
-  const data: Data[] = JSON.parse(training_data);
+  const data: Page[] = JSON.parse(training_data);
 
   // todo: increase as far as prompt stays below MAX_TOKENS
   const num = 3;
@@ -40,10 +40,10 @@ export async function createPrompt(
   };
 
   const sample_messages = sample_data.map((
-    { before, after },
+    { contentBefore, contentAfter },
   ): (UserMessage | AssistantMessage)[] => [
-    { role: "user", content: before },
-    { role: "assistant", content: after },
+    { role: "user", content: contentBefore },
+    { role: "assistant", content: contentAfter },
   ])
     .flat();
 
