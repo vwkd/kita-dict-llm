@@ -3,7 +3,7 @@ import { getCommandOutput } from "./utils.ts";
 
 const DICT_REPO = Deno.env.get("DICT_REPO")!;
 const DICT_FILE = Deno.env.get("DICT_FILE")!;
-const DATA_FILEPATH = Deno.env.get("DATA_FILEPATH")!;
+const DATA_FILEPATH = "out/data.json";
 
 /**
  * Extracts content of each page before and after its `fix: 9/999` commit

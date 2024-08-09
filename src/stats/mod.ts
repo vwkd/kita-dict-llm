@@ -2,7 +2,7 @@ import { countTokens } from "../complete/openai/utils.ts";
 import type { Data } from "../extract/types.ts";
 import { countTotalTokens } from "./utils.ts";
 
-const DATA_FILEPATH = Deno.env.get("DATA_FILEPATH")!;
+const DATA_FILEPATH = "out/data.json";
 
 const json = await Deno.readTextFile(DATA_FILEPATH);
 const data: Data[] = JSON.parse(json);

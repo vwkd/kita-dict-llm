@@ -8,7 +8,7 @@ const DICT_FILEPATH = join(
   Deno.env.get("DICT_REPO")!,
   Deno.env.get("DICT_FILE")!,
 );
-const DATA_FILEPATH = Deno.env.get("DATA_FILEPATH")!;
+const DATA_FILEPATH = "out/data.json";
 const SYSTEM_PROMPT = Deno.env.get("SYSTEM_PROMPT")!;
 const MAX_TOKENS = Number.parseInt(Deno.env.get("OPENAI_MAX_TOKENS")!);
 
