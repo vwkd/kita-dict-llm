@@ -1,7 +1,9 @@
+import { parse } from "@std/csv";
+import { join } from "@std/path";
+import { generateChat, getImage, getTokenCount } from "./utils.ts";
 import { type SystemMessage } from "../../complete/openai/types.ts";
 import { type Page } from "../../extract/types.ts";
-import { countTokens } from "../../complete/openai/utils.ts";
-import { generateChat } from "./utils.ts";
+import { type ImageMetadata } from "./types.ts";
 
 const DATA_FILEPATH = "out/data.jsonl";
 const SYSTEM_PROMPT_FILE = "prompt/openai.md";
@@ -14,6 +16,8 @@ const VALIDATION_DATA_FILEPATH =
 const TRAINING_MAX_TOKENS = Number.parseInt(
   Deno.env.get("OPENAI_TRAINING_MAX_TOKENS")!,
 );
+const DICT_REPO = Deno.env.get("DICT_REPO")!;
+const IMAGE_METADATA_FILEPATH = join(DICT_REPO, `tmp/images.csv`);
 
 const pagesJson = await Deno.readTextFile(DATA_FILEPATH);
 const pages: Page[] = pagesJson
@@ -26,6 +30,12 @@ const systemMessage: SystemMessage = {
   role: "system",
   content: systemPrompt,
 };
+
+const csv = await Deno.readTextFile(IMAGE_METADATA_FILEPATH);
+
+const metadata = parse(csv, {
+  skipFirstRow: true,
+}) as unknown as ImageMetadata[];
 
 await Deno.mkdir(OUTPUT_DIRECTORY, { recursive: true });
 
@@ -45,12 +55,11 @@ while (true) {
 
   const { pageNumber, contentBefore, contentAfter } = page;
 
-  const chat = generateChat(systemMessage, contentBefore, contentAfter);
+  const image = await getImage(DICT_REPO, pageNumber);
 
-  const tokenCountChat = chat.messages.reduce(
-    (acc, message) => acc + countTokens(message.content),
-    0,
-  );
+  const chat = generateChat(systemMessage, contentBefore, contentAfter, image);
+
+  const tokenCountChat = getTokenCount(chat, metadata, pageNumber);
   tokenCount += tokenCountChat;
 
   if (tokenCount > TRAINING_MAX_TOKENS) {
@@ -77,7 +86,9 @@ while (true) {
 
   const { pageNumber, contentBefore, contentAfter } = page;
 
-  const chat = generateChat(systemMessage, contentBefore, contentAfter);
+  const image = await getImage(DICT_REPO, pageNumber);
+
+  const chat = generateChat(systemMessage, contentBefore, contentAfter, image);
 
   console.log(`Adding page ${pageNumber}`);
 

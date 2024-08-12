@@ -6,6 +6,7 @@
     "train_openai": "deno run --env=.env --allow-env --allow-read --allow-write src/train/openai/mod.ts"
   },
   "imports": {
+    "@std/csv": "jsr:@std/csv@^1.0.1",
     "@std/path": "jsr:@std/path@^1.0.2",
     "openai": "npm:openai@^4.55.3",
     "tiktoken": "npm:tiktoken@^1.0.15"

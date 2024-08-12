@@ -7,7 +7,7 @@ OCR error correction for kita dict using LLM
 ## Idea
 
 - use LLM as OCR correction assistant, prompt with uncorrected page, get back corrected page
-- finetune existing LLM using before and after examples of manually corrected pages
+- finetune existing LLM using image of page and before and after examples of manually corrected pages
 - note: can't pass only single entry because uncorrected page has no clean entries and needs surrounding context to correct
 
 
