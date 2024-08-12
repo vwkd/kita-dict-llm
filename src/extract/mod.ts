@@ -3,7 +3,6 @@ import type { Page } from "./types.ts";
 import { getCommandOutput } from "./utils.ts";
 
 const DICT_REPO = Deno.env.get("DICT_REPO")!;
-const DICT_FILE = Deno.env.get("DICT_FILE")!;
 const OUTPUT_FOLDER = "out";
 const DATA_FILENAME = "data.jsonl";
 const DATA_FILEPATH = join(OUTPUT_FOLDER, DATA_FILENAME);
@@ -37,12 +36,12 @@ for (const logLine of commitLog.trim().split("\n")) {
   const beforeDict = await getCommandOutput("git", [
     "cat-file",
     "-p",
-    `${hash}~1:${DICT_FILE}`,
+    `${hash}~1:src/dict.txt`,
   ], DICT_REPO);
   const afterDict = await getCommandOutput("git", [
     "cat-file",
     "-p",
-    `${hash}:${DICT_FILE}`,
+    `${hash}:src/dict.txt`,
   ], DICT_REPO);
 
   const matchBefore = beforeDict.match(re);

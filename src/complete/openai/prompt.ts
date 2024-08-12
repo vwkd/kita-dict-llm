@@ -11,7 +11,7 @@ import { countTokens } from "./utils.ts";
 
 const DICT_FILEPATH = join(
   Deno.env.get("DICT_REPO")!,
-  Deno.env.get("DICT_FILE")!,
+  "src/dict.txt",
 );
 const DATA_FILEPATH = "out/data.jsonl";
 const SYSTEM_PROMPT_FILE = "prompt/openai.md";
