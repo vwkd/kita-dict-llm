@@ -38,6 +38,20 @@ const metadata = parse(csv, {
 }) as unknown as ImageMetadata[];
 
 await Deno.mkdir(OUTPUT_DIRECTORY, { recursive: true });
+try {
+  await Deno.remove(TRAINING_DATA_FILEPATH, { recursive: true });
+} catch (err) {
+  if (!(err instanceof Deno.errors.NotFound)) {
+    throw err;
+  }
+}
+try {
+  await Deno.remove(VALIDATION_DATA_FILEPATH, { recursive: true });
+} catch (err) {
+  if (!(err instanceof Deno.errors.NotFound)) {
+    throw err;
+  }
+}
 
 console.debug(`Generating OpenAI training data ...`);
 
