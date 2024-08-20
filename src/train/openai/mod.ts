@@ -7,12 +7,7 @@ import { type ImageMetadata } from "./types.ts";
 
 const DATA_FILEPATH = "out/data.jsonl";
 const SYSTEM_PROMPT_FILE = "prompt/openai.md";
-const OUTPUT_DIRECTORY = "out/openai";
-const TRAINING_DATA_FILENAME = "training.jsonl";
-const TRAINING_DATA_FILEPATH = `${OUTPUT_DIRECTORY}/${TRAINING_DATA_FILENAME}`;
-const VALIDATION_DATA_FILENAME = "validation.jsonl";
-const VALIDATION_DATA_FILEPATH =
-  `${OUTPUT_DIRECTORY}/${VALIDATION_DATA_FILENAME}`;
+const OUTPUT_DIRECTORY = "out/openai/train";
 const TRAINING_MAX_TOKENS = Number.parseInt(
   Deno.env.get("OPENAI_TRAINING_MAX_TOKENS")!,
 );
@@ -37,75 +32,46 @@ const metadata = parse(csv, {
   skipFirstRow: true,
 }) as unknown as ImageMetadata[];
 
+try {
+  await Deno.remove(OUTPUT_DIRECTORY, { recursive: true });
+} catch (err) {
+  if (!(err instanceof Deno.errors.NotFound)) {
+    throw err;
+  }
+}
 await Deno.mkdir(OUTPUT_DIRECTORY, { recursive: true });
-try {
-  await Deno.remove(TRAINING_DATA_FILEPATH, { recursive: true });
-} catch (err) {
-  if (!(err instanceof Deno.errors.NotFound)) {
-    throw err;
-  }
-}
-try {
-  await Deno.remove(VALIDATION_DATA_FILEPATH, { recursive: true });
-} catch (err) {
-  if (!(err instanceof Deno.errors.NotFound)) {
-    throw err;
-  }
-}
 
-console.debug(`Generating OpenAI training data ...`);
+console.info(
+  `Generating OpenAI training data in parts of ${TRAINING_MAX_TOKENS} max tokens ...`,
+);
 
 let tokenCount = 0;
+let part = 0;
 
-while (true) {
-  const page = pages.shift();
+console.debug(`Starting part ${part}`);
 
-  if (!page) {
-    console.warn(
-      `Data run out at total token count ${tokenCount}. Can't generate validation data.`,
-    );
-    break;
-  }
-
-  const { pageNumber, contentBefore, contentAfter } = page;
-
+for (const { pageNumber, contentBefore, contentAfter } of pages) {
   const image = await getImage(DICT_REPO, pageNumber);
 
   const chat = generateChat(systemMessage, contentBefore, contentAfter, image);
 
   const tokenCountChat = getTokenCount(chat, metadata, pageNumber);
-  tokenCount += tokenCountChat;
 
-  if (tokenCount > TRAINING_MAX_TOKENS) {
-    console.warn(`Stopping before exceeding max token count`);
-    break;
+  if (tokenCount + tokenCountChat > TRAINING_MAX_TOKENS) {
+    tokenCount = 0;
+    part += 1;
+    console.debug(`Starting part ${part}`);
   } else {
-    console.log(
-      `Adding page ${pageNumber} with ${tokenCountChat} tokens to ${tokenCount} total tokens`,
+    console.debug(
+      `Adding page ${pageNumber} with ${tokenCountChat} tokens at ${
+        (tokenCount / TRAINING_MAX_TOKENS * 100).toFixed(2)
+      }% max tokens`,
     );
   }
 
-  const line = JSON.stringify(chat) + "\n";
-  await Deno.writeTextFile(TRAINING_DATA_FILEPATH, line, { append: true });
-}
-
-console.debug(`Generating OpenAI validation data ...`);
-
-while (true) {
-  const page = pages.shift();
-
-  if (!page) {
-    break;
-  }
-
-  const { pageNumber, contentBefore, contentAfter } = page;
-
-  const image = await getImage(DICT_REPO, pageNumber);
-
-  const chat = generateChat(systemMessage, contentBefore, contentAfter, image);
-
-  console.log(`Adding page ${pageNumber}`);
+  tokenCount += tokenCountChat;
 
   const line = JSON.stringify(chat) + "\n";
-  await Deno.writeTextFile(VALIDATION_DATA_FILEPATH, line, { append: true });
+  const filepath = join(OUTPUT_DIRECTORY, `training_${part}.jsonl`);
+  await Deno.writeTextFile(filepath, line, { append: true });
 }
