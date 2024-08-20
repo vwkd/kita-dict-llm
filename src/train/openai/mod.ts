@@ -11,6 +11,7 @@ const OUTPUT_DIRECTORY = "out/openai/train";
 const TRAINING_MAX_TOKENS = Number.parseInt(
   Deno.env.get("OPENAI_TRAINING_MAX_TOKENS")!,
 );
+const USE_IMAGES = Deno.env.get("USE_IMAGES") === "true";
 const DICT_REPO = Deno.env.get("DICT_REPO")!;
 const IMAGE_METADATA_FILEPATH = join(DICT_REPO, `tmp/images.csv`);
 
@@ -42,7 +43,9 @@ try {
 await Deno.mkdir(OUTPUT_DIRECTORY, { recursive: true });
 
 console.info(
-  `Generating OpenAI training data in parts of ${TRAINING_MAX_TOKENS} max tokens ...`,
+  `Generating OpenAI training data ${
+    USE_IMAGES ? "with" : "without"
+  } images in parts of ${TRAINING_MAX_TOKENS} max tokens ...`,
 );
 
 let tokenCount = 0;
@@ -51,7 +54,7 @@ let part = 0;
 console.debug(`Starting part ${part}`);
 
 for (const { pageNumber, contentBefore, contentAfter } of pages) {
-  const image = await getImage(DICT_REPO, pageNumber);
+  const image = USE_IMAGES ? await getImage(DICT_REPO, pageNumber) : undefined;
 
   const chat = generateChat(systemMessage, contentBefore, contentAfter, image);
 

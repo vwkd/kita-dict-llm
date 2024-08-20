@@ -21,23 +21,25 @@ export function generateChat(
   systemPrompt: SystemMessage,
   contentBefore: string,
   contentAfter: string,
-  image: string,
+  image?: string,
 ): Chat {
   const userMessage: UserMessage = {
     role: "user",
-    content: [
-      {
-        type: "image_url",
-        image_url: {
-          url: image,
-          detail: "high",
+    content: image
+      ? [
+        {
+          type: "image_url",
+          image_url: {
+            url: image,
+            detail: "high",
+          },
         },
-      },
-      {
-        type: "text",
-        text: contentBefore,
-      },
-    ],
+        {
+          type: "text",
+          text: contentBefore,
+        },
+      ]
+      : contentBefore,
   };
 
   const assistantMessage: AssistantMessage = {
