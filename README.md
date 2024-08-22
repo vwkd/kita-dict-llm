@@ -20,12 +20,6 @@ OCR error correction for kita dict using LLM
 deno task extract
 ```
 
-- count tokens of training data
-
-```sh
-deno task stats
-```
-
 - generate training data for finished pages
 
 ```sh
