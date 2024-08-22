@@ -1,6 +1,44 @@
 import { encoding_for_model } from "tiktoken";
+import { type Message, type SystemMessage, type UserMessage } from "./types.ts";
 
 const MODEL_NAME = Deno.env.get("OPENAI_MODEL_NAME")!;
+
+/**
+ * Generate messages
+ *
+ * @param systemMessage system prompt
+ * @param content content
+ * @param image base64 encoded image data
+ * @returns list of messages
+ */
+export function generateMessages(
+  systemMessage: SystemMessage,
+  content: string,
+  image?: string,
+): Message[] {
+  const userMessage: UserMessage = {
+    role: "user",
+    content: image
+      ? [
+        {
+          type: "image_url",
+          image_url: {
+            url: image,
+            detail: "high",
+          },
+        },
+        {
+          type: "text",
+          text: content,
+        },
+      ]
+      : content,
+  };
+
+  const messages = [systemMessage, userMessage];
+
+  return messages;
+}
 
 /**
  * Count tokens

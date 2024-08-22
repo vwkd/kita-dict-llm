@@ -14,12 +14,6 @@ OCR error correction for kita dict using LLM
 
 ## Usage
 
-- set last page number in `.env`
-
-```
-PAGE_NUMBER="1/862"
-```
-
 - extract data of pages
 
 ```sh
@@ -38,7 +32,7 @@ deno task stats
 deno task train_openai
 ```
 
-- generate error correction of next page
+- generate error corrections for remaining pages
 
 ```sh
 deno task complete_openai
