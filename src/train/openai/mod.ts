@@ -53,7 +53,8 @@ let part = 0;
 
 console.debug(`Starting part ${part}`);
 
-for (const { pageNumber, contentBefore, contentAfter } of pages) {
+const finishedPages = pages.filter((page) => page.contentAfter !== null);
+for (const { pageNumber, contentBefore, contentAfter } of finishedPages) {
   const image = USE_IMAGES ? await getImage(DICT_REPO, pageNumber) : undefined;
 
   const messages = generateMessages(

@@ -20,7 +20,7 @@ OCR error correction for kita dict using LLM
 PAGE_NUMBER="1/862"
 ```
 
-- extract training data
+- extract data of pages
 
 ```sh
 deno task extract
