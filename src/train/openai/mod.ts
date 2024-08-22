@@ -1,6 +1,6 @@
 import { parse } from "@std/csv";
 import { join } from "@std/path";
-import { generateChat, getImage, getTokenCount } from "./utils.ts";
+import { generateMessages, getImage, getTokenCount } from "./utils.ts";
 import { type SystemMessage } from "../../complete/openai/types.ts";
 import { type Page } from "../../extract/types.ts";
 import { type ImageMetadata } from "./types.ts";
@@ -56,9 +56,14 @@ console.debug(`Starting part ${part}`);
 for (const { pageNumber, contentBefore, contentAfter } of pages) {
   const image = USE_IMAGES ? await getImage(DICT_REPO, pageNumber) : undefined;
 
-  const chat = generateChat(systemMessage, contentBefore, contentAfter, image);
+  const messages = generateMessages(
+    systemMessage,
+    contentBefore,
+    contentAfter,
+    image,
+  );
 
-  const tokenCountChat = getTokenCount(chat, metadata, pageNumber);
+  const tokenCountChat = getTokenCount(messages, metadata, pageNumber);
 
   if (tokenCount + tokenCountChat > TRAINING_MAX_TOKENS) {
     tokenCount = 0;
@@ -73,6 +78,10 @@ for (const { pageNumber, contentBefore, contentAfter } of pages) {
   }
 
   tokenCount += tokenCountChat;
+
+  const chat = {
+    messages,
+  };
 
   const line = JSON.stringify(chat) + "\n";
   const filepath = join(OUTPUT_DIRECTORY, `training_${part}.jsonl`);

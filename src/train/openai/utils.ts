@@ -2,27 +2,27 @@ import { join } from "@std/path";
 import { countTokens, countTokensImage } from "../../complete/openai/utils.ts";
 import {
   type AssistantMessage,
-  type Chat,
+  type Message,
   type SystemMessage,
   type UserMessage,
 } from "../../complete/openai/types.ts";
 import { type ImageMetadata } from "./types.ts";
 
 /**
- * Generate chat
+ * Generate messages
  *
- * @param systemPrompt system prompt
+ * @param systemMessage system prompt
  * @param contentBefore content before
  * @param contentAfter content after
  * @param image base64 encoded image data
- * @returns chat
+ * @returns list of messages
  */
-export function generateChat(
-  systemPrompt: SystemMessage,
+export function generateMessages(
+  systemMessage: SystemMessage,
   contentBefore: string,
   contentAfter: string,
   image?: string,
-): Chat {
+): Message[] {
   const userMessage: UserMessage = {
     role: "user",
     content: image
@@ -47,11 +47,9 @@ export function generateChat(
     content: contentAfter,
   };
 
-  const messages = [systemPrompt, userMessage, assistantMessage];
+  const messages = [systemMessage, userMessage, assistantMessage];
 
-  return {
-    messages,
-  };
+  return messages;
 }
 
 /**
@@ -119,21 +117,21 @@ export function getWidthHeight(
 }
 
 /**
- * Get token count for chat
+ * Get token count for messages
  *
- * @param chat chat with messages
+ * @param messages messages
  * @param metadata image metadata
  * @param pageNumber page number, e.g. `1/123`
- * @returns number of tokens of chat
+ * @returns number of tokens of messages
  */
 export function getTokenCount(
-  chat: Chat,
+  messages: Message[],
   metadata: ImageMetadata[],
   pageNumber: string,
 ): number {
   let tokenCount = 0;
 
-  for (const { content } of chat.messages) {
+  for (const { content } of messages) {
     if (typeof content == "string") {
       tokenCount += countTokens(content);
     } else if (Array.isArray(content)) {

@@ -1,9 +1,5 @@
 // adapted from https://platform.openai.com/docs/api-reference/chat/create
 
-export interface Chat {
-  messages: Message[];
-}
-
 export type Message = SystemMessage | UserMessage | AssistantMessage;
 
 export interface SystemMessage {
