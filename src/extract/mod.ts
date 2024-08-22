@@ -28,6 +28,8 @@ try {
   }
 }
 
+console.info(`Extracting data ...`);
+
 const commitLog = await getCommandOutput("git", [
   "log",
   "-E",
@@ -48,7 +50,7 @@ const logLines = commitLog
   });
 
 for (const { pageNumber, hash } of logLines) {
-  console.debug(`Extracting page ${pageNumber} ...`);
+  console.debug(`Extracting page ${pageNumber}`);
 
   const re = new RegExp(`^(?<=## ${pageNumber}\n\n)[^#]+(?=\n\n##)`, "m");
 
@@ -120,7 +122,7 @@ const pagesRemaining = matches
   }, [] as Page[]);
 
 for (const page of pagesRemaining) {
-  console.debug(`Extracting page ${page.pageNumber} ...`);
+  console.debug(`Extracting page ${page.pageNumber}`);
 
   const line = JSON.stringify(page) + "\n";
   await Deno.writeTextFile(DATA_FILEPATH, line, {
