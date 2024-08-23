@@ -31,3 +31,9 @@ deno task train_openai
 ```sh
 deno task complete_openai
 ```
+
+- can extract output using Nushell
+
+```sh
+open out/openai/complete/batch_output.jsonl | lines | each { $in | from json } | each { |json| $json | get response.body.choices.0.message.content | save $"out/openai/complete/($json | get custom_id | str replace "/" "_").txt" }
+```
